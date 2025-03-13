@@ -18,81 +18,70 @@
 #include "Bgm.h"
 
 
-const int WIDTH = 50;       // ���� ȭ���� ���� ũ��
-const int HEIGHT = 50;      // ���� ȭ���� ���� ũ��
-const int UI_WIDTH = 75;    // UI ������ ������ ��ü ȭ���� ���� ũ��
+const int WIDTH = 50;       // 게임 화면의 가로 크기
+const int HEIGHT = 50;      // 게임 화면의 세로 크기
+const int UI_WIDTH = 75;    // UI 영역을 포함한 전체 화면의 가로 크기
 
 ///////////////////////////////////////////////////
-// ������������
-const int width = 150;  // �ܼ� ���� ũ��
-const int height = 55; // �ܼ� ���� ũ��
+///// 보스스테이지
+const int width = 150;  
+const int height = 55; 
 const int UI_width = 175;
 const int centerX = width / 2;
 const int centerY = height / 2;
 ///////////////////////////////////////////////////
 
-int shootTimer = 0;         // �Ѿ� �߻� Ÿ�̸�
-int enemySpawnTimer = 0;    // �� ���� Ÿ�̸�
-int playerShootTimer = 0;   // �÷��̾� �Ѿ� �߻� Ÿ�̸�
+int shootTimer = 0;        // 총알 발사 타이머
+int enemySpawnTimer = 0;   // 적 생성 타이머
+int playerShootTimer = 0;  // 플레이어 총알 발사 타이머 
 
 int h = 0;
 
-HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE); // �ܼ� �ڵ�
-
+HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE); // 콘솔 핸들
 void gotoxy(int x, int y);
 void setcursor(bool visible, DWORD size);
 void setConsoleSize(int width, int height);
 void clearScreen();
-void clearScreen1(); // ���� ����������
+void clearScreenbossStage(); // 보스 스테이지용
 
-void Scoring(); // ���� ���
+void Scoring();
 
-// Player player(WIDTH / 2 - 3, HEIGHT - 5, 5); // �÷��̾� �ʱ�ȭ (ü�� 5)
-
-EnemyPool<EnemyA> enemyPoolA(5);     // �� �ִ� 5����
-EnemyPool<EnemyB> enemyPoolB(5);     // �� �ִ� 5����
-EnemyPool<EnemyC> enemyPoolC(5);     // �� �ִ� 5����
-EnemyPool<Boss>   enemyPoolBoss(1);  // ���� 1 ���� 
+EnemyPool<EnemyA> enemyPoolA(5);     // 적 최대 5마리
+EnemyPool<EnemyB> enemyPoolB(5);     // 적 최대 5마리
+EnemyPool<EnemyC> enemyPoolC(5);     // 적 최대 5마리
+EnemyPool<Boss>   enemyPoolBoss(1);  // 보스 1 마리
 
 
-//�Ϲݽ������� �Ѿ� ��ü 100��
-ProjectilePool projectilePool(100);  // �Ѿ� 100��
-BossStagePlayerProjectilePool BossStagePlayerProjectpool(200); // ������ �÷��̾� �Ѿ� 200��
-BossStagePlayerSkillPool BSPlayerSkillPool(100); // �÷��̾� ��ų 
-AsteroidPool AsteroidPool1(100); // �����Ѿ�
+// ProjectilePool Set
+ProjectilePool projectilePool(100);  
+BossStagePlayerProjectilePool BossStagePlayerProjectpool(200);
+BossStagePlayerSkillPool BSPlayerSkillPool(100); 
+AsteroidPool AsteroidPool1(100);
 
-// Ű���� ����Ű ���� �Է�, �÷��̾� ���� �ֱ� 
-// �Ϲݽ�������
+// Normal Stage  Input
 void processInput();
-
-// ��������������
+// Boss Stage Input
 void processInput_BOSS_STAGE();
-
-
-// �Ϲ� �������� ���� ��Ȳ ������Ʈ 
+// Normal Stage 게임 상황 업데이트 
 void update();
-
-// �Ϲ� ���������� �ʿ��� ��� �׸���
+// Normal Stage Draw
 void draw();
 
-/// ///////////////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////////////////////////////////////////////////////////////////
-// ������������ �ʿ��� �͵�
-int BackGround(); // ������������
+int BackGround();
 
-// ���� �Լ�
+// Main
 int main() 
 {
     
     CONSOLE_CURSOR_INFO c = { 0 };
-    c.dwSize = 1; //�β� : 1
-    c.bVisible = 0; //Ŀ�� �����
+    c.dwSize = 1; 
+    c.bVisible = 0; //커서 숨기기
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &c);
 
     setConsoleSize(UI_WIDTH, HEIGHT + 5);
     srand(time(NULL));
     setcursor(0, 0);
-    StartBgm(); // �����װ� ����
+    StartBgm();
     while (true)
     {
         Title();
@@ -102,29 +91,25 @@ int main()
         switch (i)
         {
         case 1:
-            StopBgm(); // �����װ� ����
-            normalStage(); // �Ϲݽ������� ����
+            StopBgm();
+            normalStage(); // BGM
             while (true)
             {
-                
-
-                sw.start(); // �����ġ
-
+                sw.start();
                 processInput();
                 update();
                 draw();
-                if (player.score > 5000)// ������������ ����
+                if (player.score > 5000)
                 {
                     break;
                 }
             }
-            clearScreen1();
+            clearScreenbossStage();
             gotoxy(75, 30);
-            std::cout << " �� ���ݱ� ����!!!" << endl;
-            StopBgm(); // �뷡 ����
-            BossStageBgm(); // ������������
-            // 3�ʴ��
-            std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // �Ǵ� std::chrono::seconds(3)
+            std::cout << " 적 폭격기 출현!!!" << endl;
+            StopBgm();
+            BossStageBgm();  // 보스스테이지 BGM
+            std::this_thread::sleep_for(std::chrono::milliseconds(3000));
             while (true)
             {
                 processInput_BOSS_STAGE();
@@ -136,7 +121,6 @@ int main()
             return 0;
         case 2:
             RankingShow();
-            // cout << " �������� ���ư��� : 1 �Է� " << endl;
             if ((GetAsyncKeyState(VK_SPACE) & 0x8000))
             {
                 system("cls");
@@ -183,7 +167,7 @@ void clearScreen()
     }
 }
 
-void clearScreen1() // ���� ����������
+void clearScreenbossStage()
 {
 
     gotoxy(0, 0);
@@ -195,8 +179,8 @@ void clearScreen1() // ���� ����������
     }
 }
 
-// Ű���� ����Ű ���� �Է�, �÷��̾� ���� �ֱ� 
-// �Ϲݽ�������
+// Player Input
+// Normal Stage
 void processInput()
 {
     playerShootTimer++;
@@ -223,21 +207,20 @@ void processInput()
     }
     if ((GetAsyncKeyState(VK_SPACE) & 0x8000) && playerShootTimer >= player.Shooting) // ���� ���� 
     {
-        auto p = projectilePool.get();
+        Projectile* p = projectilePool.get();
         if (p)
         {
             p->x = player.x + 5;
             p->y = player.y;
-            // �÷��̾� ������ ���� �κ�
             p->damage = player.GetDamage();
-
             p->isEnemy = false;
             playerShootTimer = 0;
         }
     }
 }
 
-// ��������������
+// Player Input
+// Boss Stage 
 void processInput_BOSS_STAGE()
 {
     playerShootTimer++;
@@ -249,7 +232,7 @@ void processInput_BOSS_STAGE()
     }
     if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
     {
-        if (player.x < 38)// ����
+        if (player.x < 38)
             player.x += 2;
     }
     if (GetAsyncKeyState(VK_UP) & 0x8000)
@@ -262,41 +245,34 @@ void processInput_BOSS_STAGE()
         if (player.y < height - 6)
             player.y += 1;
     }
-    if ((GetAsyncKeyState(VK_SPACE) & 0x8000) && playerShootTimer >= player.Shooting) // ���� ���� 
+    if ((GetAsyncKeyState(VK_SPACE) & 0x8000) && playerShootTimer >= player.Shooting)
     {
-        auto p1 = BossStagePlayerProjectpool.get1();
-        if (p1)
+        BossStagePlayerProjectile* get_playerpool = BossStagePlayerProjectpool.get_player_projectile();
+        if (get_playerpool)
         {
-            // �÷��̾� �ʱ�ȭ �ٽ� �ʿ�?
-            // ���� �Ѿ�
-            p1->x1 = player.x;
-            p1->y1 = player.y;
-            // ������ �Ѿ�
-            p1->x2 = player.x;
-            p1->y2 = player.y;
+            // Left Blaster
+            get_playerpool->x1 = player.x;
+            get_playerpool->y1 = player.y;
+            // Right Blaster
+            get_playerpool->x2 = player.x;
+            get_playerpool->y2 = player.y;
 
-
-            // �÷��̾� ������ ���� �κ�
-            p1->damage = player.GetDamage();
+            get_playerpool->damage = player.GetDamage();
 
             // p1->isEnemy = false;
             playerShootTimer = 0;
         }
-    }
-    if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) /*&& playerShootTimer >= player.Shooting*/)  // ctrl Ű ����
+    } 
+    if ((GetAsyncKeyState(VK_CONTROL) & 0x8000)) // VK_CONTROL -> Special Attack
     {
-        auto ps = BSPlayerSkillPool.get();
-        if (ps && player.health > 1)
+        BossStagePlayerSkill* player_skill = BSPlayerSkillPool.get();
+        if (player_skill && player.health > 1)
         {
 
-            // ��ü �߾� ������
-            ps->xs = player.x;
-            ps->ys = player.y;
-
-            // �÷��̾� ������ ���� �κ�
-            ps->damage = 10;
-
-            // p1->isEnemy = false;
+            // Lazer Attack
+            player_skill->xs = player.x;
+            player_skill->ys = player.y;
+            player_skill->damage = 10;
             playerShootTimer = 0;
             h += 1;
             if (h % 10 == 0)
@@ -309,156 +285,145 @@ void processInput_BOSS_STAGE()
 
 void update()
 {
-    // �Ϲ� ��������
-    //////////////////////////////////////////////////////
-    // �� ���� Ÿ�̸ӷ� �� ����
-    // Ǯ�� ���� �������ɽÿ��� ������ ����
     if (player.score <= 5000)
     {
-
         enemySpawnTimer++;
         if (enemySpawnTimer >= 25)
         {
             int randomSpawn = rand() % 6;
-            // �� ������ ���� Ȯ�� �ٸ���
             if (randomSpawn == 0 || randomSpawn == 3 || randomSpawn == 5)
             {
-                auto e = enemyPoolA.get();
-                if (e)
+                EnemyA* EnemyA = enemyPoolA.get();
+                if (EnemyA)
                 {
-                    e->x = rand() % (WIDTH - 2);
-                    e->y = 2;
+                    EnemyA->x = rand() % (WIDTH - 2);
+                    EnemyA->y = 2;
                 }
             }
-
             if (randomSpawn == 1)
             {
-                auto e = enemyPoolB.get();
-                if (e)
+                EnemyB* EnemyB = enemyPoolB.get();
+                if (EnemyB)
                 {
-                    e->x = rand() % (WIDTH - 2);
-                    e->y = 2;
+                    EnemyB->x = rand() % (WIDTH - 2);
+                    EnemyB->y = 2;
                 }
             }
 
             if (randomSpawn == 2 || randomSpawn == 4)
             {
-                auto e = enemyPoolC.get();
-                if (e)
+                EnemyC* EnemyC = enemyPoolC.get();
+                if (EnemyC)
                 {
-                    e->x = rand() % (WIDTH - 2);
-                    e->y = 2;
+                    EnemyC->x = rand() % (WIDTH - 2);
+                    EnemyC->y = 2;
                 }
             }
-
             enemySpawnTimer = 0;
         }
     }
 
-    // Ǯ ������Ʈ ������ �ݿ�
+    // pool Update
     enemyPoolA.update();
     enemyPoolB.update();
     enemyPoolC.update();
-    // enemyPoolBoss.update();
 
-    // �Ѿ� ������Ʈ
     projectilePool.update();
 
 
-    // �� �Ѿ˰� �÷��̾� �浹 ó��
-    for (auto& p : projectilePool.getAll())
+    // Player Hit
+    for (Projectile& p : projectilePool.getAll())
     {
         if (p.active && p.isEnemy && p.x >= player.x && p.x <= player.x + 7 && p.y == player.y)
         {
-            player.takeDamage(p.damage);
+            player.TakeDamage(p.damage);
             p.active = false;
         }
     }
 
 
-    // �÷��̾� �Ѿ˰� �� �浹 ó��
-    for (auto& p : projectilePool.getAll())
+    // Enemy Attack
+    for (Projectile& projectile : projectilePool.getAll())
     {
-        // �� ������ �ǰ� ó�� �߰� ������ �ٸ�
-        if (p.active && !p.isEnemy)
+        if (projectile.active && !projectile.isEnemy)
         {
-            for (auto& e : enemyPoolA.getAll())
+            for (EnemyA& e : enemyPoolA.getAll())
             {
-                if (e.active && p.x >= e.x - 2 && p.x <= e.x + 2 && p.y < e.y + 3)
+                if (e.active && projectile.x >= e.x - 2 && projectile.x <= e.x + 2 && projectile.y < e.y + 3)
                 {
-                    e.takeDamage(p.damage);
-                    p.active = false;
+                    e.takeDamage(projectile.damage);
+                    projectile.active = false;
                     player.score += 100;
-                    player.upgrade();
+                    player.Upgrade();
                 }
             }
-            for (auto& e : enemyPoolB.getAll())
+            for (EnemyB& e : enemyPoolB.getAll())
             {
-                if (e.active && p.x >= e.x - 2 && p.x <= e.x + 2 && p.y < e.y + 3)
+                if (e.active && projectile.x >= e.x - 2 && projectile.x <= e.x + 2 && projectile.y < e.y + 3)
                 {
-                    e.takeDamage(p.damage);
-                    p.active = false;
+                    e.takeDamage(projectile.damage);
+                    projectile.active = false;
                     player.score += 200;
-                    player.upgrade();
+                    player.Upgrade();
                 }
             }
-            for (auto& e : enemyPoolC.getAll())
+            for (EnemyC& e : enemyPoolC.getAll())
             {
-                if (e.active && p.x >= e.x && p.x <= e.x + 2 && p.y == e.y)
+                if (e.active && projectile.x >= e.x && projectile.x <= e.x + 2 && projectile.y == e.y)
                 {
-                    e.takeDamage(p.damage);
-                    p.active = false;
+                    e.takeDamage(projectile.damage);
+                    projectile.active = false;
                     player.score += 150;
-                    player.upgrade();
+                    player.Upgrade();
                 }
             }
         }
     }
 
-    // �� �Ѿ� �߻�
-    for (auto& e : enemyPoolA.getAll())
+    // Enemy Attack
+    for (EnemyA& e : enemyPoolA.getAll())
     {
         if (e.shouldShoot())
         {
-            auto ep = projectilePool.get();
-            if (ep)
+            Projectile* EnemyA_Projectile = projectilePool.get();
+            if (EnemyA_Projectile)
             {
-                ep->x = e.x + 1;
-                ep->y = e.y + 1;
-                ep->damage = e.damage;
-                ep->isEnemy = true;
+                EnemyA_Projectile->x = e.x + 1;
+                EnemyA_Projectile->y = e.y + 1;
+                EnemyA_Projectile->damage = e.damage;
+                EnemyA_Projectile->isEnemy = true;
             }
             e.resetShootTimer();
         }
     }
 
-    for (auto& e : enemyPoolB.getAll())
+    for (EnemyB& e : enemyPoolB.getAll())
     {
         if (e.shouldShoot())
         {
-            auto ep = projectilePool.get();
-            if (ep)
+            Projectile* EnemyB_Projectile = projectilePool.get();
+            if (EnemyB_Projectile)
             {
-                ep->x = e.x + 1;
-                ep->y = e.y + 1;
-                ep->damage = e.damage;
-                ep->isEnemy = true;
+                EnemyB_Projectile->x = e.x + 1;
+                EnemyB_Projectile->y = e.y + 1;
+                EnemyB_Projectile->damage = e.damage;
+                EnemyB_Projectile->isEnemy = true;
             }
             e.resetShootTimer();
         }
     }
 
-    for (auto& e : enemyPoolC.getAll())
+    for (EnemyC& e : enemyPoolC.getAll())
     {
         if (e.shouldShoot())
         {
-            auto ep = projectilePool.get();
-            if (ep)
+            Projectile* EnemyC_Projectile = projectilePool.get();
+            if (EnemyC_Projectile)
             {
-                ep->x = e.x + 1;
-                ep->y = e.y + 1;
-                ep->damage = e.damage;
-                ep->isEnemy = true;
+                EnemyC_Projectile->x = e.x + 1;
+                EnemyC_Projectile->y = e.y + 1;
+                EnemyC_Projectile->damage = e.damage;
+                EnemyC_Projectile->isEnemy = true;
             }
             e.resetShootTimer();
         }
@@ -470,8 +435,7 @@ void draw()
     clearScreen();
     setcursor(0, 0);
 
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // �Ϲݽ�������
+    // Normal Stage
     gotoxy(0, 0);
     std::cout << "*";
     for (int i = 0; i < WIDTH; i++) std::cout << "-";
@@ -497,14 +461,14 @@ void draw()
     std::cout << "*";
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     gotoxy(WIDTH + 2, 5);
     std::cout << "Energy : " << player.health;
     gotoxy(WIDTH + 2, 6);
+
     for (int i = 0; i < player.health; i++)
     {
         TextColor(10, 0);
-        std::cout << "��";
+        cout << "";
         TextColor(15, 0);
     }
 
@@ -519,21 +483,19 @@ void draw()
     gotoxy(WIDTH + 2, 21);
     sw.print_elapsed();
 
-
     player.draw();
     enemyPoolA.draw();
     enemyPoolB.draw();
     enemyPoolC.draw();
-    // enemyPoolBoss.draw();
     projectilePool.draw();
-
+    
     Sleep(32);
 }
 
-// ������������ �ʿ��� �͵�
-int BackGround() // ������������
+// BossStage
+int BackGround()
 {
-    const int numStars = 40;  // ���� ����
+    const int numStars = 40;
 
     float starsX[numStars];
     float starsY[numStars];
@@ -542,29 +504,20 @@ int BackGround() // ������������
     float prevStarsY[numStars];
     float speeds[numStars];
 
-    // ���� �ʱ� ��ġ�� �ӵ� ����
+    // BackGround Star Set
     for (int i = 0; i < numStars; ++i)
     {
-        // ���� ���� ȣ���� ����? �Ϻ��ϰ� ������ ���� ����� ���
-        // float angle = (float)(rand() % 360) * 3.14159f / 180.0f;
         starsX[i] = centerX;
         starsY[i] = centerY;
-
         prevStarsX[i] = centerX;
         prevStarsY[i] = centerY;
-        // �ӵ� ����
-        speeds[i] = (float)(rand() % 5 + 1) / 2.0f; // �ӵ� ����
+        speeds[i] = (float)(rand() % 5 + 1) / 2.0f;
     }
-
-    // ���� �̵��� ����ؼ� �ݺ�
     while (true)
     {
+        clearScreenbossStage();
 
-
-        clearScreen1();
-
-        /////////////////////////////////////////////////////////////////////////////////////////////
-        // ������������ ��� �׸���
+        // BossStage OutLine
         gotoxy(0, 0);
         std::cout << "*";
         for (int i = 0; i < width; i++) std::cout << "-";
@@ -588,129 +541,101 @@ int BackGround() // ������������
         std::cout << "*";
         for (int i = width + 1; i < UI_width; i++) std::cout << "-";
         std::cout << "*";
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
+        
+        // Star Draw
         for (int i = 0; i < numStars; ++i)
         {
-            // ���� ��ġ ����
             prevStarsX[i] = starsX[i];
             prevStarsY[i] = starsY[i];
-
-            // �� ���� ��ġ�� ������Ʈ (���� ����)
-            // cos(), sin()�ȿ� ������ �����̴�. 
             starsX[i] += cos(i) * speeds[i];
             starsY[i] += sin(i) * speeds[i];
-
-            // �ܻ��� ���� ���� ��ġ�� ���� ��´�
             if (prevStarsX[i] >= 0 && prevStarsX[i] < width && prevStarsY[i] >= 0 && prevStarsY[i] < height)
             {
                 gotoxy((int)prevStarsX[i], (int)prevStarsY[i]);
                 std::cout << ".";
             }
-
-            // ���� ���� ��ġ�� ���� �׸���
             if (starsX[i] >= 0 && starsX[i] < width && starsY[i] >= 0 && starsY[i] < height)
             {
                 gotoxy((int)starsX[i], (int)starsY[i]);
                 std::cout << "*";
             }
-
             else
             {
-                // ���� ȭ�� ������ ������ �ٽ� �߾ӿ��� ����
                 starsX[i] = centerX;
                 starsY[i] = centerY;
             }
         }
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // �÷��̾� �⺻���� ���� �ǰ�
-        for (auto& p : BossStagePlayerProjectpool.getAll())
+        // player Attack -> Boss Hit
+        for (BossStagePlayerProjectile& PlayerProjectile : BossStagePlayerProjectpool.getAll())
         {
-            for (auto& e : enemyPoolBoss.getAll())
+            for (Boss& boss : enemyPoolBoss.getAll())
             {
-                if (e.active && p.active1)
+                if (boss.active && PlayerProjectile.active1)
                 {
-                    // ���� �ǰ�
-                    // ���� ���Ʈ
-                    if (p.x1 * 3 + 1 >= e.x * 3 && p.x1 * 3 + 1 <= e.x * 3 + 20 && p.y1 < e.y + 5) // ���״� ���� ++�ذ�!
+                    if (PlayerProjectile.x1 * 3 + 1 >= boss.x * 3 && PlayerProjectile.x1 * 3 + 1 <= boss.x * 3 + 20 && PlayerProjectile.y1 < boss.y + 5)
                     {
-                        // cout << "!@#!@#@!#!@#!" << endl;
-                        e.takeDamage(p.damage);
-                        p.active1 = false;
+                        boss.takeDamage(PlayerProjectile.damage);
+                        PlayerProjectile.active1 = false;
                         player.score += 100;
-
-                        //player.upgrade();
                     }
-                    // ������ ���Ʈ
-                    if (p.x2 * 3 + 35 >= e.x * 3 && p.x2 * 3 + 35 <= e.x * 3 + 20 && p.y1 < e.y + 10)
+                    if (PlayerProjectile.x2 * 3 + 35 >= boss.x * 3 && PlayerProjectile.x2 * 3 + 35 <= boss.x * 3 + 20 && PlayerProjectile.y1 < boss.y + 10)
                     {
-                        e.takeDamage(p.damage);
-                        p.active1 = false;
+                        boss.takeDamage(PlayerProjectile.damage);
+                        PlayerProjectile.active1 = false;
                         player.score += 100;
-                        //player.upgrade();
                     }
                 }
             }
         }
-
-        // �÷��̾� ��ų ���� �ǰ� 
-        // �÷��̾� ��ų �÷��̾� �������Ҹ�
-
-        for (auto& p : BSPlayerSkillPool.getAll())
+        for (BossStagePlayerSkill& p : BSPlayerSkillPool.getAll())
         {
-            for (auto& e : enemyPoolBoss.getAll())
+            for (Boss& boss : enemyPoolBoss.getAll())
             {
-                if (e.active && p.active_s && player.health > 1)
+                if (boss.active && p.active_s && player.health > 1)
                 {
-                    if (p.xs * 3 + 17 >= e.x * 3 && p.xs * 3 + 17 <= e.x * 3 + 35 && p.ys < e.y + 5)
+                    if (p.xs * 3 + 17 >= boss.x * 3 && p.xs * 3 + 17 <= boss.x * 3 + 35 && p.ys < boss.y + 5)
                     {
-                        e.takeDamage(p.damage);
+                        boss.takeDamage(p.damage);
                         p.active_s = false;
                         player.score += 2000;
                     }
-
                 }
             }
         }
-
-        // ���� �Ѿ� �߻�
-        for (auto& e : enemyPoolBoss.getAll())
+        
+        for (Boss& boss : enemyPoolBoss.getAll())
         {
-            if (e.shouldShoot())
+            if (boss.shouldShoot())
             {
-                auto ep = AsteroidPool1.get();
-                if (ep)
+                Asteroid* BossProjectile = AsteroidPool1.get();
+                if (BossProjectile)
                 {
-                    ep->b_x = e.x * 3 + 13 + rand() % 10;
-                    ep->b_y = e.y + 14;
-                    ep->damage = 1;
-                    // ep->isEnemy = true;
-                    ep->trackPlayer(player.x, player.y); // �÷��̾ �����ϵ��� ����
+                    BossProjectile->b_x = boss.x * 3 + 13 + rand() % 10;
+                    BossProjectile->b_y = boss.y + 14;
+                    BossProjectile->damage = 1;
+                    BossProjectile->trackPlayer(player.x, player.y); // trackPlayer
                 }
-                e.resetShootTimer();
+                boss.resetShootTimer();
             }
         }
 
 
-        // ���� �Ѿ� �߻� ������Ʈ
+        // Boss Attack Update
         AsteroidPool1.draw();
         AsteroidPool1.update();
 
 
-        // ���� �Ѿ˰� �÷��̾� �浹 ó��
-        for (auto& p : AsteroidPool1.getAll())
+        // BossProjectile -> Player Hit
+        for (Asteroid& asteroid : AsteroidPool1.getAll())
         {
-            if (p.active && p.b_x >= player.x * 3.f + 5.f && p.b_x <= player.x * 3.f + 30.f && p.b_y > player.y - 1 && p.b_y < player.y + 3)
+            if (asteroid.active && asteroid.b_x >= player.x * 3.f + 5.f && asteroid.b_x <= player.x * 3.f + 30.f && asteroid.b_y > player.y - 1 && asteroid.b_y < player.y + 3)
             {
-                player.takeDamage(p.damage);
-                p.active = false;
+                player.TakeDamage(asteroid.damage);
+                asteroid.active = false;
             }
         }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
         // UI
         gotoxy(width + 2, 5);
         std::cout << "Energy : " << player.health;
@@ -718,7 +643,7 @@ int BackGround() // ������������
         {
             gotoxy(width + 2+(i*2), 6);
             TextColor(10, 10);
-            std::cout << "  ";
+            std::cout << "@";
             TextColor(15, 0);
         }
 
@@ -728,96 +653,79 @@ int BackGround() // ������������
         gotoxy(width + 2, 15);
         std::cout << "Damage : " << "5";
 
-        /*gotoxy(width + 2, 17);
-        std::cout << "player x,y : " << player.x << player.y;*/
-        /*gotoxy(width + 2, 18);
-        for (auto& e : enemyPoolBoss.getAll())
-        {
-            std::cout << "���� x,y : " << h;
-        }*/
-
         gotoxy(width + 2, 20);
         std::cout << "Time : ";
         gotoxy(width + 2, 21);
         sw.print_elapsed();
 
         gotoxy(width + 2, 22);
-        for (auto& e : enemyPoolBoss.getAll())
+        for (Boss& boss : enemyPoolBoss.getAll())
         {
-            std::cout << "Boss : " << e.health;
-            if (e.health <= 0)
+            std::cout << "Boss : " << boss.health;
+            if (boss.health <= 0)
             {
                 sw.stop();
                 system("cls");
                 gotoxy(0, 15);
                 Conpleted();
+
                 Scoring();
-                
+
                 cout << endl << endl << endl << endl << endl << endl << endl << endl << endl;
                 exit(0);
             }
         }
-        // ����ü�� �׷���
+        // Boss HP
         gotoxy(width + 2, 23);
-        for (auto& e : enemyPoolBoss.getAll())
+        for (Boss& boss : enemyPoolBoss.getAll())
         {
-
-            for (int i = 0; i < e.health / 300; i++)
+            for (int i = 0; i < boss.health / 300; i++)
             {
                 TextColor(4, 4);
-                std::cout << "��";
+                std::cout << "@";
                 TextColor(15, 0);
             }
             TextColor(15, 0);
         }
 
-        // �÷��̾�
+        // Player Draw
         player.BossStagePlayerDraw();
-        // ����
+        // Boss Draw
         enemyPoolBoss.draw();
-
         if (true)
         {
-            auto e = enemyPoolBoss.get();
-            if (e)
+            Boss* boss = enemyPoolBoss.get();
+            if (boss)
             {
-                e->x = 25;
-                e->y = 2;
+                boss->x = 25;
+                boss->y = 2;
             }
         }
-
-        // �Ѿ� ��������
-        // projectilePool.draw(); 
-
-        /////////////////////////////////////////////
-        // ������������ �÷��̾� ����
+        // Input Change
         processInput_BOSS_STAGE();
-
-        // �÷��̾� ��ų�߰�
+        
         if (player.health > 1)
         {
             BSPlayerSkillPool.draw();
             BSPlayerSkillPool.update();
         }
 
-        // ���� ������
+        // Boss Move
         enemyPoolBoss.update();
-        // �÷��̾� �Ѿ� �߰�
+        // Boss Stage Player Projectile
         BossStagePlayerProjectpool.update();
         BossStagePlayerProjectpool.draw();
 
-        Sleep(16);  // �ִϸ��̼� �ӵ� ����
+        Sleep(16);
     }
 }
 
-// ������� �Լ�
 void Scoring() 
 {
     std::string name;
     int Score = player.score;
-    StopBgm(); // �뷡 ����
-
-    // �ֿܼ� �̸� �Է� ��û
+    StopBgm();
+    
     gotoxy(0, 32);
     TextColor(2, 0);
     cout << "                                                                                                                                  ____________________________________________________________________________ " << endl;
@@ -843,23 +751,17 @@ void Scoring()
     cout << "                                                                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << endl;
 
     
-    // ���丮 ���� (�̹� �����ص� ���� �߻����� ����)
+    // Create Directory
     std::filesystem::create_directory("Save");
 
-    // ���� ���� �Ǵ� ����
+    // ofstream Set
     std::ofstream ofs("Save/ranking.rnk", std::ios::app);
     if (!ofs) 
     {
         ofs.open("Save/ranking.rnk", std::ios::out);
     }
-
-    // ���Ͽ� �̸��� �ð��� ���
     ofs << name << " " << Score << std::endl;
-
-    // ���� �ݱ�
     ofs.close();
-
-    // ���� �Ϸ� �޽���
     gotoxy(190, 45);
     std::cout << "Save Completed!" << std::endl;
     TextColor(15, 0);

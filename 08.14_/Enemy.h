@@ -18,18 +18,18 @@ void TextColor3(int font, int backGround)
 class EnemyBase 
 {
 public:
-    int x, y;          // ���� ��ǥ
-    int health;        // ���� ü��
-    int damage;        // ���� ���ط�
-    int directionX, directionY;  // ���� �̵� ����
-    bool active;       // ���� Ȱ��ȭ �������� ����
-    int shootInterval; // ���� �Ѿ� �߻� ����
-    int shootTimer;    // �Ѿ� �߻� Ÿ�̸�
+    int x, y;                           // Enemy X, Y
+    int health;                         // Enemy HP
+    int damage;                         // Enemy Damage
+    int directionX, directionY;         // Enemy Move Direction
+    bool active;                        
+    int shootInterval;                  // Enemy Attack Interval
+    int shootTimer;                     // Enemy Attack Clcle
 
     EnemyBase(int hp, int dmg, int dirX, int dirY, int shootInt)
         : health(hp), damage(dmg), directionX(dirX), directionY(dirY), active(false), shootInterval(shootInt), shootTimer(0) {}
 
-    virtual void draw() = 0;  // ���� �Լ��� ���� ��ü���� ������ ���� Ŭ��������
+    virtual void draw() = 0;
 
     void update() 
     {
@@ -39,7 +39,7 @@ public:
             y += directionY;
             if (y >= HEIGHT || x < 1 || x >= WIDTH-5) 
             {
-                active = false;  // ȭ�� ������ ������ ��Ȱ��ȭ
+                active = false;  // Disabled when off-screen
             }
             shootTimer++;
         }
@@ -50,7 +50,7 @@ public:
         health -= dmg;
         if (health <= 0) 
         {
-            active = false;  // ü���� 0 ���Ϸ� �������� ��Ȱ��ȭ
+            active = false;  // Disabled when off-screen
         }
     }
 
@@ -80,7 +80,7 @@ public:
             gotoxy(x, y+1);
             std::cout << "|=(_)=|" << std::endl;
             gotoxy(x, y+2);
-            std::cout << "|     |" << std::endl;  // EnemyA�� �ð��� ǥ��
+            std::cout << "|     |" << std::endl;
             TextColor3(15, 0);
 
         }
@@ -99,7 +99,7 @@ public:
             TextColor3(11, 0);
             std::cout << " |  _  |";
             gotoxy(x, y + 1);
-            std::cout << " |=[O]=|";  // EnemyB�� �ð��� ǥ��
+            std::cout << " |=[O]=|";
             gotoxy(x, y + 2);
             std::cout << "";
             TextColor3(15, 0);
@@ -118,7 +118,7 @@ public:
         {
             gotoxy(x, y + 3);
             TextColor3(7, 0);
-            std::cout << "<o>";  // EnemyC�� �ð��� ǥ��
+            std::cout << "<o>";
             TextColor3(15, 0);
         }
     }
@@ -147,7 +147,7 @@ public:
             }
             if (y >= HEIGHT || x < 0 || x >= WIDTH) 
             {
-                active = false;  // ȭ�� ������ ������ ��Ȱ��ȭ
+                active = false;
             }
             shootTimer++;
         }

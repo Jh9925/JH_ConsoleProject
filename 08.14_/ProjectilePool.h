@@ -2,7 +2,7 @@
 #include <vector>
 #include "Projectile.h"
 
-// 일반스테이지 플레이어 적 총알 풀
+// Normal Stage Projectile pool
 class ProjectilePool 
 {
     std::vector<Projectile> pool;
@@ -14,28 +14,28 @@ public:
 
     Projectile* get() 
     {
-        for (auto& p : pool) 
+        for (Projectile& projectile : pool) 
         {
-            if (!p.active) 
+            if (!projectile.active) 
             {
-                p.active = true;
-                return &p;
+                projectile.active = true;
+                return &projectile;
             }
         }
         return nullptr;
     }
 
     void update() {
-        for (auto& p : pool) 
+        for (Projectile& projectile : pool) 
         {
-            p.update();
+           projectile.update();
         }
     }
 
     void draw() {
-        for (auto& p : pool) 
+        for (Projectile& projectile : pool) 
         {
-            p.draw();
+           projectile.draw();
         }
     }
 
@@ -45,10 +45,7 @@ public:
     }
 };
 
-/// <summary>
-/// ///////////////////////////////////////////////////////////
-/// </summary>
-/// 보스 발사 총알
+// Boss Attack
 class AsteroidPool
 {
     std::vector<Asteroid> pool;
@@ -60,12 +57,12 @@ public:
 
     Asteroid* get() 
     {
-        for (auto& p : pool) 
+        for (Asteroid& asteroid : pool) 
         {
-            if (!p.active) 
+            if (!asteroid.active) 
             {
-                p.active = true;
-                return &p;
+                asteroid.active = true;
+                return &asteroid;
             }
         }
         return nullptr;
@@ -73,16 +70,16 @@ public:
 
     void update() 
     {
-        for (auto& p : pool) 
+        for (Asteroid& asteroid : pool) 
         {
-            p.update();
+            asteroid.update();
         }
     }
 
     void draw() {
-        for (auto& p : pool) 
+        for (Asteroid& asteroid : pool) 
         {
-            p.draw();
+            asteroid.draw();
         }
     }
 
@@ -93,7 +90,7 @@ public:
 };
 
 
-// 보스스테이지 플레이어 총알 풀
+// BossStagePlayerProjectilePool
 class BossStagePlayerProjectilePool
 {
     std::vector<BossStagePlayerProjectile> BossStagePlayerpool;
@@ -105,14 +102,14 @@ public:
         BossStagePlayerpool.resize(size);
     }
 
-    BossStagePlayerProjectile* get1() 
+    BossStagePlayerProjectile* get_player_projectile() 
     {
-        for (auto& p : BossStagePlayerpool) 
+        for (BossStagePlayerProjectile& player_projectile : BossStagePlayerpool) 
         {
-            if (!p.active1) 
+            if (!player_projectile.active1) 
             {
-                p.active1 = true;
-                return &p;
+                player_projectile.active1 = true;
+                return &player_projectile;
             }
         }
         return nullptr;
@@ -120,17 +117,17 @@ public:
 
     void update() 
     {
-        for (auto& p : BossStagePlayerpool) 
+        for (BossStagePlayerProjectile& player_projectile : BossStagePlayerpool) 
         {
-            p.update();
+           player_projectile.update();
         }
     }
 
     void draw() 
     {
-        for (auto& p : BossStagePlayerpool) 
+        for (BossStagePlayerProjectile& player_projectile : BossStagePlayerpool) 
         {
-            p.draw();
+            player_projectile.draw();
         }
     }
 
@@ -140,8 +137,7 @@ public:
     }
 };
 
-// 보스스테이지 플레이어 스킬
-// 플레이어의 에너지를 깍으며 발사 기능 추가 해야됨
+// Boss Stage Player Skill
 class BossStagePlayerSkillPool
 {
     std::vector<BossStagePlayerSkill> PlayerSkillPool;
@@ -155,28 +151,28 @@ public:
 
     BossStagePlayerSkill* get()
     {
-        for (auto& p1 : PlayerSkillPool)
+        for (BossStagePlayerSkill& player_skill : PlayerSkillPool)
         {
-            if (!p1.active_s)
+            if (!player_skill.active_s)
             {
-                p1.active_s = true;
-                return &p1;
+                player_skill.active_s = true;
+                return &player_skill;
             }
         }
         return nullptr;
     }
 
     void update() {
-        for (auto& p : PlayerSkillPool)
+        for (BossStagePlayerSkill& player_skill : PlayerSkillPool)
         {
-            p.update();
+            player_skill.update();
         }
     }
 
     void draw() {
-        for (auto& p : PlayerSkillPool)
+        for (BossStagePlayerSkill& player_skill : PlayerSkillPool)
         {
-            p.draw();
+            player_skill.draw();
         }
     }
 

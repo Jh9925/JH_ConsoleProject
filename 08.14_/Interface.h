@@ -8,9 +8,6 @@ using std::endl;
 void Title();
 void Conpleted();
 
-
-
-
 void Title()
 {
 
@@ -33,7 +30,6 @@ void Title()
     cout << "            \\  /  \\  /  /    ______    \\  |   | \\              /          ." << endl;
     cout << " .       .   \\/    \\/  /____/      \\____\\ |___|  \\____________/    " << endl;
     cout << "                               ." << endl;
-    //TextColor(15, 0);
 
 
     cout << endl << endl << endl << endl << endl << endl << endl << endl;

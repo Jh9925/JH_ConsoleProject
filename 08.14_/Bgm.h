@@ -1,5 +1,5 @@
 #pragma once
-#include <windows.h>  // windows.h´Â ±âº» Çì´õ·Î mmsystem.h¿¡ Æ÷ÇÔµÇ¾î ÀÖ¾î ¸í½ÃÀûÀ¸·Î Æ÷ÇÔÇÏÁö ¾Ê¾Æµµ µË´Ï´Ù.
+#include <windows.h>  // windows.hëŠ” ê¸°ë³¸ í—¤ë”ë¡œ mmsystem.hì— í¬í•¨ë˜ì–´ ìˆì–´ ëª…ì‹œì ìœ¼ë¡œ í¬í•¨í•˜ì§€ ì•Šì•„ë„ ë©ë‹ˆë‹¤.
 #include <mmsystem.h> 
 #pragma comment(lib, "winmm.lib")
 
@@ -11,14 +11,12 @@ void normalStage();
 
 void StopBgm()
 {
-    // ÇöÀç Àç»ı ÁßÀÎ ¼Ò¸®¸¦ ¸ØÃä´Ï´Ù.
     PlaySound(NULL, 0, 0);
 }
 
 
 void BossStageBgm()
 {
-    // ÆÄÀÏ °æ·Î¸¦ ÁöÁ¤ÇÒ ¶§´Â °æ·Î°¡ Á¤È®ÇÑÁö È®ÀÎÇØ¾ß ÇÕ´Ï´Ù. ÇöÀç °æ·Î°¡ ¿Ã¹Ù¸£´Ù¸é ÀÌ´ë·Î »ç¿ë °¡´ÉÇÕ´Ï´Ù.
     PlaySound(TEXT("audio/03-Battle-Of-The-Heroes_[cut_204sec].wav"), NULL, SND_LOOP | SND_ASYNC | SND_FILENAME);
 }
 

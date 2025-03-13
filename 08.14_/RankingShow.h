@@ -93,15 +93,14 @@ void printScore(LINKEDLIST* lnk) {
             }
         }
     }
-    // 이게 출력임
     TextColor2(14, 0);
     cout << " ________________________________________________" << endl;
     cout << " %=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x" << endl;
-    cout << "                      점수 순위 " << endl;
+    cout << "                      Ranking " << endl;
     for (int i = 0; i < cnt-1; i++) {
         cout << "  " << i + 1 << " -> " << ptr[i]->name << " " << ptr[i]->score << endl << endl;
     }
-    cout << " 메인으로 돌아가기 : 스페이스바 꾹 " << endl<<endl;
+    cout << "  " << endl<<endl;
     cout << " %=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x%=x" << endl;
     cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
     TextColor2(15, 0);
@@ -110,15 +109,12 @@ void printScore(LINKEDLIST* lnk) {
 
 void insertData(LINKEDLIST* lnk, const char* name, int score) {
     RNKINFO* newRNK = new RNKINFO();
-    // 새 이름을 저장할 버퍼의 크기를 정확히 지정
     size_t nameLen = strlen(name);
     newRNK->name = new char[nameLen + 1]; // +1 for null terminator
-
     // newRNK->name = new char[strlen(name) + 1];
     strcpy_s(newRNK->name, nameLen + 1, name);
     newRNK->score = score;
     newRNK->next = nullptr;
-
     if (lnk->head == nullptr && lnk->tail == nullptr) {
         lnk->head = lnk->tail = newRNK;
     }
@@ -127,7 +123,6 @@ void insertData(LINKEDLIST* lnk, const char* name, int score) {
         lnk->tail = newRNK;
     }
 }
-
 void deleteLastNode(LINKEDLIST* lnk) {
     if (lnk->head == nullptr || lnk->head->next == nullptr) {
         delete lnk->head;
